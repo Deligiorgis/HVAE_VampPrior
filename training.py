@@ -24,17 +24,22 @@ from generation import generation_model
 import gzip
 import pickle
 
-
+### This function trains the model
 def training_model(model_name, train_data, valid_data, device, layers, x_dim, h_dim, z_dim, n_batch, eta, epochs,
                    n_pseudo_inputs, early_stopping, warm_up, weighted_vp_bool, He_bool, plot_show_bool=False):
-    vae = Model(x_dim, h_dim, z_dim, n_batch, device, n_pseudo_inputs, layers, weighted_vp_bool, He_bool)
-    vae.to(device)
 
+    ### Define the model
+    vae = Model(x_dim, h_dim, z_dim, n_batch, device, n_pseudo_inputs, layers, weighted_vp_bool, He_bool)
+    vae.to(device) ### Choose GPU or CPU
+
+    ### lists for saving the performance per update or epoch
     train_loss_lst, valid_loss_lst = [], []
     active_units_val_lst_per_layer_per_epoch = []
     kl_loss_lst_val, re_loss_lst_val = [], []
 
+    ### Models parameters
     parameters = list(vae.parameters())
+    ### Optimizer is Adam with AMSGrad
     optimizer = optim.Adam(parameters, lr=eta, amsgrad=True)
 
     updates_per_epoch = int(train_data.shape[0] / float(n_batch))
@@ -70,7 +75,7 @@ def training_model(model_name, train_data, valid_data, device, layers, x_dim, h_
 
         ### Early Stopping (begin)
         ###
-        ### Early stopping is applied after finishing the warm-up
+        ### Early stopping is applied after warm-up has finished
         ###
 
         z_dead_units_per_layer = np.zeros((layers, z_dim))
@@ -115,7 +120,7 @@ def training_model(model_name, train_data, valid_data, device, layers, x_dim, h_
         if weighted_vp_bool:
             tqdm_epochs.set_description(
                 "Epoch:{} Training Loss:{} Validation Loss:{}, W:{}".format(
-                    epoch, train_loss_lst[-1], valid_loss_lst[-1], vae.w_pseudo_layer.weight))
+                    epoch, train_loss_lst[-1], valid_loss_lst[-1], vae.w_pseudo_layer.linear_layer.weight))
         else:
             tqdm_epochs.set_description(
                 "Epoch:{} Training Loss:{} Validation Loss:{}".format(

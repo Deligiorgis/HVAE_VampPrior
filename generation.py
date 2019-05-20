@@ -11,7 +11,7 @@ from copy import deepcopy
 
 import os
 
-
+### This function generates n_digits based on a given model
 def generation_model(model, model_name, n_digits=16, epoch=None):
     model.generative(n_digits=n_digits)
 

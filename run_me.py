@@ -12,14 +12,15 @@ from generation import generation_model
 
 from datetime import datetime
 
-
+### Saving the progress in a logfile
 def update_log_file(filename, text):
     with open(filename, "a") as fl:
         fl.write(text)
 
-
+### This function train, testing and generating based on the given model and parameters
 def run_me(USE_CUDA, layers, n_pseudo_inputs, x_dim, h_dim, z_dim, n_batch, eta, epochs, early_stopping,
            warm_up, device, train_data, valid_data, test_data, He_bool, weighted_vp_bool):
+
     text = "\n{}\nmodel_name:{}\t\tLayers:{}\t\tpseudo_inputs:{}\t\tGPU:{}\t\teta:{}\t\twarm_up:{}\n".format(
         str(datetime.now()), model_name, layers, n_pseudo_inputs, USE_CUDA, eta, warm_up)
     text += "early_stopping:{}\t\tbatch_size:{}\t\tvectorized_input_dim:{}\t\tlatent_dim:{}\t\thidden_units:{}\n".format(
@@ -122,6 +123,7 @@ if __name__ == "__main__":
     train_data, valid_data, test_data = read_pickled_data_gzip()  # Read the data from the saved (compressed) pickles
     print("\nShapes for train:{} valid:{} test:{}\n".format(train_data.shape, valid_data.shape, test_data.shape))
 
+    ### GPU or CPU
     print("Using Torch Version:{}".format(torch.__version__))
     USE_CUDA = torch.cuda.is_available()  # Do you have a GPU or CPU
     device = torch.device("cuda" if USE_CUDA else "cpu")  #
@@ -132,6 +134,7 @@ if __name__ == "__main__":
         for n_gpu in range(num_of_gpu):
             print("GPU:{} is a '{}'".format(n_gpu, torch.cuda.get_device_name(n_gpu)))  # Which GPU do you have
 
+    ### Configuration of the model
     layers = 2
     N = train_data.shape[0]  # Number of training data
     x_dim = train_data.shape[1]
@@ -148,9 +151,11 @@ if __name__ == "__main__":
 
     for layers in range(1,5):
 
+        ### Create the name of the model based on the given configurations
         model_name = ("VAE_" if layers == 1 else "HVAE_L_{}_".format(layers)) + (
             "SG_" if n_pseudo_inputs == 0 else "VP_") + ("WG_" if bool(weighted_vp_bool) else "") + "He_new"
 
+        ### Create a directory to save the results
         if not os.path.exists(os.path.join("Results", model_name)):
             os.makedirs(os.path.join("Results", model_name))
         else:

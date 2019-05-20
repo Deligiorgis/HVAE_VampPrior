@@ -12,7 +12,7 @@ import gzip
 import pickle
 
 
-
+### This function measure how many active units per layer are in the model
 def measure_active_units_model(X, model):
     model.measure_dead_units(X)
     active_units_per_layer = []
@@ -22,7 +22,7 @@ def measure_active_units_model(X, model):
 
     return active_units_per_layer
 
-
+### This function measures the marginal log-likelihood for a given model
 def measure_marginal_LL_model(X, model, model_name, data_name, batch_size=500):
     print("Calculating the marginal log-likelihodd")
     model.marginal_LL(X, batch_size=batch_size)
